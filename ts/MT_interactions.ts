@@ -28,13 +28,13 @@ function multiTouch(element: HTMLElement): void {
 
                     pointerId_1 = 0;
                     pointerId_2 = 1;
-                    console.log(getRelevantDataFromEvent(evt));
+                    let newTouch: Touch = getRelevantDataFromEvent(evt);
 
                     originalMatrix = transfo.getMatrixFromElement(element);
 
                     // Multiplication of matrix point is done via matrixTransform (wtf?) : https://developer.mozilla.org/en-US/docs/Web/API/SVGPoint
-                    Pt1_coord_element = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY).matrixTransform(originalMatrix.inverse());
-                    Pt1_coord_parent = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    Pt1_coord_element = transfo.getPoint(newTouch.pageX, newTouch.pageY).matrixTransform(originalMatrix.inverse());
+                    Pt1_coord_parent = transfo.getPoint(newTouch.pageX, newTouch.pageY);
 
                     console.log("inactive to translating done");
                     return true;
@@ -49,9 +49,9 @@ function multiTouch(element: HTMLElement): void {
                     evt.preventDefault();
                     evt.stopPropagation();
 
-                    console.log(getRelevantDataFromEvent(evt));
+                    let newTouch: Touch = getRelevantDataFromEvent(evt);
 
-                    var parentPoint: SVGPoint = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    var parentPoint: SVGPoint = transfo.getPoint(newTouch.pageX, newTouch.pageY);
 
                     transfo.drag(element, originalMatrix, Pt1_coord_element, parentPoint);
                     console.log("touchmove done");
@@ -80,9 +80,11 @@ function multiTouch(element: HTMLElement): void {
 
                     originalMatrix = transfo.getMatrixFromElement(element);
 
+                    let newTouch: Touch = getRelevantDataFromEvent(evt);
+
                     // Multiplication of matrix point is done via matrixTransform (wtf?) : https://developer.mozilla.org/en-US/docs/Web/API/SVGPoint
-                    Pt2_coord_element = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY).matrixTransform(originalMatrix.inverse());
-                    Pt2_coord_parent = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    Pt2_coord_element = transfo.getPoint(newTouch.pageX, newTouch.pageY).matrixTransform(originalMatrix.inverse());
+                    Pt2_coord_parent = transfo.getPoint(newTouch.pageX, newTouch.pageY);
 
                     console.log("translating to rotozooming done");
                     return true;
@@ -97,11 +99,13 @@ function multiTouch(element: HTMLElement): void {
                     evt.preventDefault();
                     evt.stopPropagation();
 
-                    if(getRelevantDataFromEvent(evt).identifier === pointerId_1){
-                          Pt1_coord_parent = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    let newTouch: Touch = getRelevantDataFromEvent(evt);
+
+                    if (newTouch.identifier === pointerId_1) {
+                        Pt1_coord_parent = transfo.getPoint(newTouch.pageX, newTouch.pageY);
                     }
-                    if(getRelevantDataFromEvent(evt).identifier === pointerId_2){
-                          Pt2_coord_parent = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    if (newTouch.identifier === pointerId_2) {
+                        Pt2_coord_parent = transfo.getPoint(newTouch.pageX, newTouch.pageY);
                     }
 
                     transfo.rotozoom(element, originalMatrix, Pt1_coord_element, Pt1_coord_parent, Pt2_coord_element, Pt2_coord_parent);
@@ -115,11 +119,14 @@ function multiTouch(element: HTMLElement): void {
                 eventName: ["touchend"],
                 useCapture: true,
                 action: (evt: TouchEvent): boolean => {
+
                     originalMatrix = transfo.getMatrixFromElement(element);
 
+                    let remainingTouch: Touch = getRelevantDataFromEvent(evt);
+
                     // Multiplication of matrix point is done via matrixTransform (wtf?) : https://developer.mozilla.org/en-US/docs/Web/API/SVGPoint
-                    Pt1_coord_element = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY).matrixTransform(originalMatrix.inverse());
-                    Pt1_coord_parent = transfo.getPoint(getRelevantDataFromEvent(evt).pageX, getRelevantDataFromEvent(evt).pageY);
+                    Pt1_coord_element = transfo.getPoint(remainingTouch.pageX, remainingTouch.pageY).matrixTransform(originalMatrix.inverse());
+                    Pt1_coord_parent = transfo.getPoint(remainingTouch.pageX, remainingTouch.pageY);
 
                     return true;
                 }
@@ -139,7 +146,7 @@ function isString(s: any): boolean {
 export let $ = (sel: string | Element | Element[]): void => {
     let L: Element[] = [];
     if (isString(sel)) {
-        L = Array.from(document.querySelectorAll(<string>sel));
+        L = Array.from(document.querySelectorAll(<string> sel));
     } else if (sel instanceof Element) {
         L.push(sel);
     } else if (sel instanceof Array) {
